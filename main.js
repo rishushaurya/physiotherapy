@@ -611,6 +611,53 @@
   }
 
   // ==========================================================================
+  // COUNT-UP ANIMATION (for hero trust badges)
+  // ==========================================================================
+
+  function initCountUp() {
+    const counters = document.querySelectorAll('.count-up[data-target]');
+    if (!counters.length) return;
+
+    if (!('IntersectionObserver' in window)) {
+      // Fallback for old browsers — show final values immediately
+      counters.forEach(el => {
+        el.textContent = el.getAttribute('data-target');
+      });
+      return;
+    }
+
+    const animate = (el) => {
+      const target = parseInt(el.getAttribute('data-target'), 10);
+      const duration = 1200; // ms
+      const step = Math.ceil(target / (duration / 16)); // ~60fps
+      let current = 0;
+
+      const tick = () => {
+        current = Math.min(current + step, target);
+        el.textContent = current;
+        if (current < target) {
+          requestAnimationFrame(tick);
+        }
+      };
+      requestAnimationFrame(tick);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            animate(entry.target);
+            observer.unobserve(entry.target); // Only animate once
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    counters.forEach(el => observer.observe(el));
+  }
+
+  // ==========================================================================
   // INITIALIZATION
   // ==========================================================================
 
@@ -626,6 +673,7 @@
     initBackToTop();
     initAccessibility();
     initLanguageSelection();
+    initCountUp();
   });
 
 })();
