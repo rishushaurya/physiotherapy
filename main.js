@@ -543,10 +543,17 @@
     document.body.classList.remove('lang-en', 'lang-hi');
     document.body.classList.add(`lang-${lang}`);
 
-    // Update navbar toggle button text
-    const btnTextSpan = document.querySelector('#btn-lang-toggle .btn-lang-text');
-    if (btnTextSpan) {
-      btnTextSpan.textContent = lang === 'en' ? 'हिन्दी' : 'English';
+    // Update active class on segmented language switcher buttons
+    const btnEn = document.getElementById('btn-lang-en');
+    const btnHi = document.getElementById('btn-lang-hi');
+    if (btnEn && btnHi) {
+      if (lang === 'en') {
+        btnEn.classList.add('active');
+        btnHi.classList.remove('active');
+      } else {
+        btnHi.classList.add('active');
+        btnEn.classList.remove('active');
+      }
     }
 
     // Translate elements
@@ -562,53 +569,33 @@
   }
 
   function initLanguageSelection() {
-    const langModal = document.getElementById('lang-modal');
     const storedLang = localStorage.getItem('preferred_language');
+    const defaultLang = storedLang || 'en';
 
-    // Bind Navbar toggle button click
-    const toggleBtn = document.getElementById('btn-lang-toggle');
-    if (toggleBtn) {
-      toggleBtn.addEventListener('click', (e) => {
+    // Bind English button click event
+    const btnEn = document.getElementById('btn-lang-en');
+    if (btnEn) {
+      btnEn.addEventListener('click', (e) => {
         e.preventDefault();
-        const nextLang = currentLang === 'en' ? 'hi' : 'en';
-        setLanguage(nextLang);
-        trackAnalyticsEvent('lang_toggle', { language: nextLang });
+        setLanguage('en');
+        trackAnalyticsEvent('lang_toggle', { language: 'en' });
       });
     }
 
-    if (!storedLang) {
-      // First-time user, check if we are on index.html before showing modal
-      const isIndex = document.getElementById('lang-modal') !== null;
-      if (isIndex && langModal) {
-        langModal.classList.remove('hidden');
-
-        const btnEn = document.getElementById('btn-lang-select-en');
-        const btnHi = document.getElementById('btn-lang-select-hi');
-
-        if (btnEn) {
-          btnEn.addEventListener('click', () => {
-            setLanguage('en');
-            langModal.classList.add('hidden');
-            trackAnalyticsEvent('lang_select_modal', { language: 'en' });
-          });
-        }
-
-        if (btnHi) {
-          btnHi.addEventListener('click', () => {
-            setLanguage('hi');
-            langModal.classList.add('hidden');
-            trackAnalyticsEvent('lang_select_modal', { language: 'hi' });
-          });
-        }
-      } else {
-        // Fallback default language
-        setLanguage('en');
-      }
-    } else {
-      // Return visitor
-      setLanguage(storedLang);
+    // Bind Hindi button click event
+    const btnHi = document.getElementById('btn-lang-hi');
+    if (btnHi) {
+      btnHi.addEventListener('click', (e) => {
+        e.preventDefault();
+        setLanguage('hi');
+        trackAnalyticsEvent('lang_toggle', { language: 'hi' });
+      });
     }
+
+    // Set initial language preferences
+    setLanguage(defaultLang);
   }
+
 
   // ==========================================================================
   // COUNT-UP ANIMATION (for hero trust badges)
